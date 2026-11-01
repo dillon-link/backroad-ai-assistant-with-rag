@@ -30,3 +30,21 @@ npm install
 cp .env.example .env  # set OPENAI_API_KEY for real answers
 npm run dev  # http://localhost:3334
 ```
+
+## Screenshots
+
+Home — shop intro, Settings & Catalog, and the Inspector sidebar:
+
+![App home](screenshots/app-home.png)
+
+Chat — asking for a fountain pen gift, with Inspector showing trigger, retrieved docs, and LLM payload:
+
+![Chat reply](screenshots/chat-reply.png)
+
+Off-catalog — asking for a printer (not sold), trigger fires and the assistant redirects to sale items:
+
+![Chat off-catalog](screenshots/chat-off-catalog.png)
+
+Inspector sidebar — all sections expanded: retrieved docs, base system prompt, message history, and LLM payload:
+
+![Inspector sidebar](screenshots/inspector-sidebar.png)
