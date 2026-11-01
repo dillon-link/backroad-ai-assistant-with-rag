@@ -2,12 +2,14 @@ import { run } from '@backroad/backroad';
 import 'dotenv/config';
 import { DEFAULT_SYSTEM, answer, nudgeFor, toLLM, type Msg } from './ai';
 import { PRODUCTS } from './catalog';
+import { retrieve } from './retrieval';
 
 // Sidebar inspector: native collapses, scrolls with the sidebar.
-function Inspector(sb: any, history: Msg[], payload: object[], system: string, nudge: string | null) {
+function Inspector(sb: any, history: Msg[], payload: object[], system: string, nudge: string | null, docs: string[]) {
   sb.write({ body: `**Inspector** · ${history.length} messages` });
   if (nudge) sb.collapse({ label: '⚡ trigger fired' }).write({ body: nudge });
   else sb.write({ body: '_Trigger: not fired — system unchanged._' });
+  sb.collapse({ label: `Retrieved docs · ${docs.length}` }).write({ body: docs.length > 0 ? docs.join(', ') : 'none' });
   sb.collapse({ label: '0. system (base)' }).write({ body: system });
   for (let i = 0; i < history.length; i++) {
     const m = history[i];
@@ -56,9 +58,11 @@ run(
       br.setValue('history', history);
     }
 
-    // Inspector last, so it shows this run's fresh payload — not the previous run's.
+    // Identify the latest user message
     const lastUser = next ?? [...history].reverse().find((m) => m.by === 'human')?.content ?? null;
-    Inspector(br.sidebar({}), history, payload, system, lastUser ? nudgeFor(lastUser) : null);
+    // Retrieve documents from the catalog
+    const docs = lastUser ? retrieve(lastUser).map((p) => p.name) : [];
+    Inspector(br.sidebar({}), history, payload, system, lastUser ? nudgeFor(lastUser) : null, docs);
   },
   { server: { port: 3334 }},
 );

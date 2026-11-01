@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
-import { PRODUCTS, catalogText } from './catalog';
+import { PRODUCTS } from './catalog';
+import { formatDocs, retrieve } from './retrieval';
 
 export type Msg = { by: 'human' | 'ai'; content: string };
 
@@ -32,7 +33,7 @@ function relevantSystem(base: string, message: string): string {
 
 export function toLLM(history: Msg[], message: string, system: string) {
   return [
-    { role: 'system', content: `${relevantSystem(system, message)}\n${catalogText()}` },
+    { role: 'system', content: `${relevantSystem(system, message)}\n${formatDocs(retrieve(message))}` },
     ...history.map(
       (m): { role: 'user' | 'assistant'; content: string } => ({
         role: m.by === 'human' ? 'user' : 'assistant',
