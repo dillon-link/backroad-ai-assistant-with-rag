@@ -8,7 +8,7 @@ Node 24 · `@backroad/backroad` · `openai` · `dotenv` · `tsx` + `typescript` 
 
 ## Files
 
-- `src/app.ts` — UI: title, sidebar system prompt, chat history, clear button, chat input
+- `src/app.ts` — UI: two-column layout (chat left, Inspector right), title, settings & catalog collapse, chat history, clear button, chat input
 - `src/ai.ts` — `answer()` streams OpenAI replies; canned demo text without `OPENAI_API_KEY`
 - `src/catalog.ts` — `PRODUCTS` list + `catalogText()` for the model prompt
 - `src/retrieval.ts` — minimal RAG: `retrieve()` + `formatDocs()`
