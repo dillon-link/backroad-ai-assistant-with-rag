@@ -21,6 +21,7 @@ function Inspector(sb: any, history: Msg[], payload: object[], system: string, n
 
 run(
   async (br) => {
+    // STEP 1/5: Restore state + render main UI.
     let history = br.getOrDefault<Msg[]>('history', []);
     let payload = br.getOrDefault<object[]>('payload', []);
 
@@ -38,6 +39,7 @@ run(
 
     for (const m of history) br.chatMessage({ by: m.by }).write({ body: m.content });
 
+    // STEP 2/5: Handle input actions.
     if (br.button({ id: 'clear', label: 'Clear chat' })) {
       history = [];
       payload = [];
@@ -47,6 +49,9 @@ run(
     if (!process.env.OPENAI_API_KEY) br.write({ body: '_Demo mode: set `OPENAI_API_KEY` for real answers._' });
 
     const next = br.chatInput({ id: 'chat', placeholder: 'Looking for stationery?…' });
+    // RAG PIPELINE: Retrieve -> Augment prompt -> Generate
+    // toLLM() = Retrieve + Augment prompt, answer() = Generate.
+    // STEP 3/5: RAG + LLM — toLLM() retrieves docs & builds prompt, answer() calls LLM.
     if (next) {
       const req = toLLM(history, next, system);
       br.setValue('payload', req);
@@ -58,10 +63,10 @@ run(
       br.setValue('history', history);
     }
 
-    // Identify the latest user message
+    // STEP 4/5: Recompute RAG context for display only (not used for answer).
     const lastUser = next ?? [...history].reverse().find((m) => m.by === 'human')?.content ?? null;
-    // Retrieve documents from the catalog
     const docs = lastUser ? retrieve(lastUser).map((p) => p.name) : [];
+    // STEP 5/5: Render inspector sidebar (no state change).
     Inspector(br.sidebar({}), history, payload, system, lastUser ? nudgeFor(lastUser) : null, docs);
   },
   { server: { port: 3334 }},

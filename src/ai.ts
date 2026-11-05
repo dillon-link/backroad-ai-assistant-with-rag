@@ -32,8 +32,13 @@ function relevantSystem(base: string, message: string): string {
 }
 
 export function toLLM(history: Msg[], message: string, system: string) {
+  // ============================================================
+  // RAG PIPELINE: Retrieve -> Augment prompt -> Generate
+  // STEP 2/3 — AUGMENT PROMPT: retrieve(query) + formatDocs()
+  // injects ONLY the retrieved docs into the system message.
+  // ============================================================
   return [
-    { role: 'system', content: `${relevantSystem(system, message)}\n${formatDocs(retrieve(message))}` },
+    { role: 'system', content: `${relevantSystem(system, message)}\n${formatDocs(retrieve(message))}` }, // Retrieve -> Augment prompt
     ...history.map(
       (m): { role: 'user' | 'assistant'; content: string } => ({
         role: m.by === 'human' ? 'user' : 'assistant',
@@ -45,6 +50,10 @@ export function toLLM(history: Msg[], message: string, system: string) {
 }
 
 export async function* answer(history: Msg[], message: string, system: string): AsyncGenerator<string> {
+  // ============================================================
+  // RAG PIPELINE: Retrieve -> Augment prompt -> Generate
+  // STEP 3/3 — GENERATE: send the AUGMENTED prompt (toLLM) to the LLM.
+  // ============================================================
   if (!process.env.OPENAI_API_KEY) {
     yield* demoReply();
     return;

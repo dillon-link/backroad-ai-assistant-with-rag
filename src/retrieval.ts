@@ -1,3 +1,7 @@
+// ============================================================
+// RAG PIPELINE: Retrieve -> Augment prompt -> Generate
+// STEP 1/3 — RETRIEVE: fetch only the top-k docs relevant to the query.
+// ============================================================
 import { PRODUCTS, type Product } from './catalog';
 
 function tokens(s: string): string[] {
